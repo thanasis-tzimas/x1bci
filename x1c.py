@@ -1,13 +1,11 @@
-import parse
-import eval
-from vm import VirtualMachine
 import argparse
+import parse
+import compile
 
 arg_parser = argparse.ArgumentParser()
 arg_parser.add_argument('file')
 args = arg_parser.parse_args()
 
-virtual_machine = VirtualMachine()
 bytecode_parser = parse.BytecodeParser(r"""
     // Comments
     COMMENT: "#" /[^\n]/
@@ -51,5 +49,4 @@ bytecode_parser = parse.BytecodeParser(r"""
 """)
 
 tree = bytecode_parser.parse_file(args.file)
-result = eval.eval(virtual_machine, tree)
-print(result)
+compile.compile('./output.s', '', tree)

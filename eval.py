@@ -1,5 +1,4 @@
 import lark
-import numpy
 from vm import VirtualMachine
 import re
 
@@ -12,8 +11,8 @@ def _isInt(string: str) -> bool:
 def _isHex(string: str) -> bool:
     return re.fullmatch(r"0x[0-9a-f]+", string or "") is not None
 
-def _hex2Dec(string: str) -> str:
-    int(string, base=16)
+def _hex2Dec(string: str) -> int:
+    return int(string, base=16)
 
 def _checkIfNumber(string: str) -> bool:
     return _isInt(string) or _isHex(string)
@@ -45,40 +44,38 @@ def eval(VM: VirtualMachine, AST: lark.Tree) -> str:
                     VM.Memory.append(number)
                 else:
                     VM.Memory.append(int(number))
-                result += str.format("{}\n{}\n", VM.Flags, VM.Memory)
             case "drop":
-                
-                pass
+                VM.Memory.pop()
             case "dup":
-                
+                x = VM.Memory.pop()
+                y = x
+                VM.Memory.append(x)
+                VM.Memory.append(y)
                 pass
             case "swap":
-                
+                x = VM.Memory.pop()
+                y = VM.Memory.pop()
+                VM.Memory.append(y)
+                VM.Memory.append(x)
                 pass
             case "add":
                 x, y = VM.Memory.pop(), VM.Memory.pop()
                 res = int(x)+int(y)
                 VM.Memory.append(res)
-                result += str.format("{}\n{}\n", VM.Flags, VM.Memory)
             case "sub":
-                
-                pass
+                x, y = VM.Memory.pop(), VM.Memory.pop()
+                res = int(y)-int(x)
+                VM.Memory.append(res)
             case "mul":
-                
-                pass
+                x, y = VM.Memory.pop(), VM.Memory.pop()
+                res = int(x)*int(y)
+                VM.Memory.append(res)
             case "div":
-                
-                pass
-            case "if":
-                
-                pass
-            case "jmp":
-                
-                pass
-            case "call":
-                
-                pass
+                x, y = VM.Memory.pop(), VM.Memory.pop()
+                res = int(x)/int(y)
+                VM.Memory.append(res)
             case _:
                 print('Error @ %d:%d: %s is not a recognizeable opcode.' % (token.line, token.column, token.value))
                 return
+        result += str.format("[{}\n{}\n", VM.Flags, VM.Memory)
     return result
